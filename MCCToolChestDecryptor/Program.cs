@@ -16,6 +16,8 @@ namespace MCCToolChestDecryptor {
 			}
 
 			string val = null;
+			string decryptFunctionName = null;
+
 			while (val == null || val.Length != 0) {
 				Console.Write("> ");
 				val = Console.ReadLine();
@@ -58,11 +60,69 @@ namespace MCCToolChestDecryptor {
 						}
 						Console.WriteLine($"Total string count: {stringCount}");
 					}
+					else if (val.Equals("remap")) {
+						if (Class50.byte_3 == null || Class50.byte_3.Length == 0) { // oh no its null
+							Class50.GetObfuscatedString(0); // oh yeah its not null
+						}
+
+						string currentClipboard = null;
+						try {
+							currentClipboard = Clipboard.GetText();
+						}
+						catch {}
+						if (currentClipboard == null || currentClipboard.Length <= 0) {
+							Console.WriteLine("Failed to get current clipboard content as text.");
+							continue;
+						}
+
+						if (decryptFunctionName == null) {
+							Console.Write("Function name (`class.method`) > ");
+							decryptFunctionName = Console.ReadLine();
+							if (decryptFunctionName == null || decryptFunctionName.Length <= 0) {
+								Console.WriteLine("Invalid decryptFunctionName.");
+								continue;
+							}
+						}
+
+						int cur = 0;
+						while (cur + 4 < Class50.byte_3.Length) {
+							string real = Class50.GetObfuscatedString(cur);
+							int strLen = real.Length;
+
+							real = real.Replace("\\", "\\\\")
+								.Replace("\a", "\\a")
+								.Replace("\b", "\\b")
+								.Replace("\f", "\\f")
+								.Replace("\n", "\\n")
+								.Replace("\r", "\\r")
+								.Replace("\t", "\\t")
+								.Replace("\v", "\\v")
+								.Replace("\"", "\\\"");
+
+							string exp = $"{decryptFunctionName}({cur})";
+
+							if (currentClipboard.Contains(exp)) {
+								currentClipboard = currentClipboard.Replace(exp, $"\"{real}\"");
+								Console.WriteLine($"{exp} -> \"{real}\"");
+							}
+
+							cur += 4;               // account for string size (as int, 4 bytes)
+							cur += strLen * 2;		// account for unicode (*2 bytes)
+						}
+
+						Clipboard.SetText(currentClipboard);
+						Console.WriteLine("Copied to clipboard.");
+					}
 					else {
-						string newString = Class50.GetObfuscatedString(Convert.ToInt32(val));
-						Console.WriteLine(newString);
-						if (shouldCopyToClipboard) {
-							Clipboard.SetText(newString);
+						try {
+							string newString = Class50.GetObfuscatedString(Convert.ToInt32(val));
+							Console.WriteLine(newString);
+							if (shouldCopyToClipboard) {
+								Clipboard.SetText(newString);
+							}
+						}
+						catch {
+							Console.WriteLine("Failed operation.");
 						}
 					}
 				}
