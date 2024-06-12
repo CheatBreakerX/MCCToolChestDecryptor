@@ -1,4 +1,4 @@
-﻿// See https://aka.ms/new-console-template for more information
+// See https://aka.ms/new-console-template for more information
 using System;
 using System.Windows.Forms;
 
@@ -43,6 +43,10 @@ namespace MCCToolChestDecryptor {
 						Console.WriteLine($"=========== END RAW DATA ({Class50.byte_3.Length}) ===========");
 					}
 					else if (val.Equals("all")) {
+						if (Class50.byte_3 == null || Class50.byte_3.Length == 0) { // oh no its null
+							Class50.GetObfuscatedString(0); // oh yeah its not null
+						}
+
 						int cur = 0;
 						int stringCount = 0;
 						while (cur + 4 < Class50.byte_3.Length) {
