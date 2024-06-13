@@ -54,8 +54,8 @@ namespace MCCToolChestDecryptor {
 						while (cur + 4 < Class50.byte_3.Length) {
 							string real = Class50.GetObfuscatedString(cur);
 							Console.WriteLine($"{cur}: {real}");
-							cur += 4;				// account for string size (as int, 4 bytes)
-							cur += real.Length * 2;	// account for unicode (*2 bytes)
+							cur += 4;               // account for string size (as int, 4 bytes)
+							cur += real.Length * 2; // account for unicode (*2 bytes)
 							stringCount++;
 						}
 						Console.WriteLine($"Total string count: {stringCount}");
@@ -69,7 +69,7 @@ namespace MCCToolChestDecryptor {
 						try {
 							currentClipboard = Clipboard.GetText();
 						}
-						catch {}
+						catch { }
 						if (currentClipboard == null || currentClipboard.Length <= 0) {
 							Console.WriteLine("Failed to get current clipboard content as text.");
 							continue;
@@ -107,11 +107,34 @@ namespace MCCToolChestDecryptor {
 							}
 
 							cur += 4;               // account for string size (as int, 4 bytes)
-							cur += strLen * 2;		// account for unicode (*2 bytes)
+							cur += strLen * 2;      // account for unicode (*2 bytes)
 						}
 
 						Clipboard.SetText(currentClipboard);
 						Console.WriteLine("Copied to clipboard.");
+					}
+					else if (val.Split(' ')[0].Equals("search")) {
+						if (val.Split(' ').Length < 2) {
+							Console.WriteLine("Failed operation. (query must be specified)");
+							continue;
+						}
+
+						string query = val.Split(" ".ToCharArray(), 2)[1];
+
+						if (Class50.byte_3 == null || Class50.byte_3.Length == 0) { // oh no its null
+							Class50.GetObfuscatedString(0); // oh yeah its not null
+						}
+
+						int cur = 0;
+						while (cur + 4 < Class50.byte_3.Length) {
+							string real = Class50.GetObfuscatedString(cur);
+							// ignore case
+							if (real.ToLower().Contains(query.ToLower())) {
+								Console.WriteLine($"{cur}: {real}");
+							}
+							cur += 4;               // account for string size (as int, 4 bytes)
+							cur += real.Length * 2; // account for unicode (*2 bytes)
+						}
 					}
 					else {
 						try {
